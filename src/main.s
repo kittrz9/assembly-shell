@@ -3,11 +3,12 @@ global _start
 
 section .bss
 inputBuf: resb 256
+argv: resq 64
 
 section .data
 prompt: db ">"
 nullStr: db 0x0
-argv: dq inputBuf,0x0
+;argv: dq inputBuf,0x0
 env: dq nullStr, 0x0
 
 section .text
@@ -27,12 +28,33 @@ shellLoop:
 	mov rdx, 256
 	syscall
 
-; replace \n with 0
-	; rax has the amount of bytes written
 	lea rdi, [inputBuf]
-	add rdi, rax
-	dec rdi
+	lea rcx, [argv]
+nextArg:
+	mov rdx, rdi
+spaceCheck:
+	inc rdi
+	cmp byte [rdi], 0x0
+	je endOfArgs
+	cmp byte [rdi], 0xa
+	jne notNewline
 	mov byte [rdi], 0x0
+	jmp endOfArgs
+notNewline:
+
+	cmp byte [rdi], 0x20
+	jne spaceCheck
+
+	mov byte [rdi], 0x0
+	mov qword [rcx], rdx
+	add rcx, 8
+	inc rdi
+
+	jmp nextArg
+endOfArgs:
+	mov qword [rcx], rdx
+	add rcx, 8
+	mov qword [rcx], 0x0
 
 ; TODO: parse for argv
 
