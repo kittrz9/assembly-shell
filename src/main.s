@@ -4,6 +4,7 @@ global _start
 section .bss
 inputBuf: resb 256
 argv: resq 64
+cwd: resb 256
 
 section .data
 prompt: db ">"
@@ -15,6 +16,17 @@ cmd_cd_str: db "cd",0x0
 section .text
 _start:
 shellLoop:
+; write cwd
+	mov rax, 0x4f
+	mov rdi, cwd
+	mov rsi, 256
+	syscall
+	; rax should have the amount of bytes written
+	mov rdx, rax
+	mov rax, 0x1
+	mov rdi, 0x1
+	mov rsi, cwd
+	syscall
 ; write prompt
 	mov rax, 0x1 ; write
 	mov rdi, 0x1 ; stdout
