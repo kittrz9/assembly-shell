@@ -75,14 +75,8 @@ endOfArgs:
 	lea rsi, [cmd_cd_str]
 	mov rcx, 3
 cdCheck:
-	movzx rax, byte [rdi]
-	movzx rbx, byte [rsi]
-	cmp rax, rbx
+	repe cmpsb
 	jne cdCheckFail
-	dec rcx
-	cmp rcx, 0x0
-	je cdCheckSuccess
-	jmp cdCheck
 cdCheckSuccess:
 	call cmd_cd
 	jmp shellLoop
