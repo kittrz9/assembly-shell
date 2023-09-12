@@ -1,5 +1,8 @@
 global _start
 
+extern cmdList
+
+global argv
 
 section .bss
 inputBuf: resb 256
@@ -70,17 +73,25 @@ endOfArgs:
 	add rcx, 8
 	mov qword [rcx], 0x0
 
-; check if argv[0] is "cd"
+; check for builtin commands
+	lea rbx, [cmdList]
+commandCheck:
+	mov rax, qword [rbx]
+	cmp rax, 0x0
+	je commandCheckEnd
 	lea rdi, [inputBuf]
-	lea rsi, [cmd_cd_str]
-	mov rcx, 3
-cdCheck:
+	lea rax, [rbx + 8]
+	mov rsi, qword [rbx]
+	movzx rcx, byte [rax]
 	repe cmpsb
-	jne cdCheckFail
-cdCheckSuccess:
-	call cmd_cd
-	jmp shellLoop
-cdCheckFail:
+	je commandCheckSuccess
+	add rbx, 24
+	jmp commandCheck
+commandCheckSuccess:
+	lea rax, [rbx + 16]
+	mov rbx, qword [rax]
+	call rbx
+commandCheckEnd:
 
 ; check if the provided program exists
 	mov rax, 0x15 ; access
@@ -118,14 +129,4 @@ notForked:
 	jmp shellLoop
 
 
-
-cmd_cd:
-	push rax
-	push rdi
-	mov rax, 0x50 ; chdir
-	mov rdi, [argv + 8]
-	syscall
-	pop rdi
-	pop rax
-	ret
 
