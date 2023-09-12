@@ -11,7 +11,7 @@ currently this is only capable of executing programs with their full path (i.e. 
  - NASM : <https://nasm.us/>  
  - LD : <https://www.gnu.org/software/binutils/>  
  - Linux (this will only work with linux, as it depends on all the specific syscalls it provides)  
- - any posix compliant shell like [dash]<http://gondor.apana.org.au/~herbert/dash/> or [bash]<https://www.gnu.org/software/bash/> to run `./build.sh`  
+ - any posix compliant shell like [dash](http://gondor.apana.org.au/~herbert/dash/) or [bash](https://www.gnu.org/software/bash/) to run `./build.sh`  
 
 ---
 
