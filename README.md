@@ -3,7 +3,7 @@ just a very simple shell written in x86 assembly
   
 I made this basically just to learn how to write x86 assembly. this really should not be used in any normal way  
   
-currently this is only capable of executing programs with their full path (i.e. `/bin/ls`), sending different commands to a program like `/bin/ls -alsh`, and being able to change directories with `cd`. there is no support for environment variables or really anything else a functional shell would have.  
+currently this is only capable of executing programs with their full path (i.e. `/bin/ls`), sending different arguments to a program like `/bin/ls -alsh`, and being able to change directories with `cd`. there is no support for environment variables or really anything else a functional shell would have.  
   
 ---
 

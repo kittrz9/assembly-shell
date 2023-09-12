@@ -6,6 +6,7 @@ section .data
 cmdList: 
 	dq cmdCdStr, cmdCdLen, cmdCdFunc
 	dq cmdAsdfStr, cmdAsdfLen, cmdAsdfFunc
+	dq cmdExitStr, cmdExitLen, cmdExitFunc
 	dq 0x0
 
 section .text
@@ -33,3 +34,14 @@ section .data
 cmdAsdfStr:
 	db "asdf",0x0
 cmdAsdfLen: equ $-cmdAsdfStr
+
+section .text
+cmdExitFunc:
+	mov rax, 0x3c
+	mov rdi, 69
+	syscall
+
+section .data
+cmdExitStr:
+	db "exit",0x0
+cmdExitLen: equ $-cmdExitStr
