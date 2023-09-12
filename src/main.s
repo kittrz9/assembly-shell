@@ -82,6 +82,15 @@ cdCheckSuccess:
 	jmp shellLoop
 cdCheckFail:
 
+; check if the provided program exists
+	mov rax, 0x15 ; access
+	mov rdi, inputBuf
+	mov rsi, 1 ; test for execute permission
+	syscall
+	cmp rax, 0x0
+	jne shellLoop
+	; currently still forks if argv[0] is a directory, should probably use the stat syscall
+
 
 ; fork
 	mov rax, 0x39
@@ -89,8 +98,7 @@ cdCheckFail:
 
 ; if fork, execve to program specified by stdin
 	cmp rax, 0x0
-	je forked
-	jmp notForked
+	jne notForked
 forked:
 	mov rax, 0x3b
 	mov rdi, inputBuf
