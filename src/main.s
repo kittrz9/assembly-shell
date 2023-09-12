@@ -85,6 +85,7 @@ cdCheck:
 	jmp cdCheck
 cdCheckSuccess:
 	call cmd_cd
+	jmp shellLoop
 cdCheckFail:
 
 
