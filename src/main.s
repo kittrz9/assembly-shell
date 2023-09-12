@@ -10,6 +10,7 @@ prompt: db ">"
 nullStr: db 0x0
 ;argv: dq inputBuf,0x0
 env: dq nullStr, 0x0
+cmd_cd_str: db "cd",0x0
 
 section .text
 _start:
@@ -28,6 +29,7 @@ shellLoop:
 	mov rdx, 256
 	syscall
 
+; parse for argv
 	lea rdi, [inputBuf]
 	lea rcx, [argv]
 nextArg:
@@ -56,7 +58,22 @@ endOfArgs:
 	add rcx, 8
 	mov qword [rcx], 0x0
 
-; TODO: parse for argv
+; check if argv[0] is "cd"
+	lea rdi, [inputBuf]
+	lea rsi, [cmd_cd_str]
+	mov rcx, 3
+cdCheck:
+	movzx rax, byte [rdi]
+	movzx rbx, byte [rsi]
+	cmp rax, rbx
+	jne cdCheckFail
+	dec rcx
+	cmp rcx, 0x0
+	je cdCheckSuccess
+	jmp cdCheck
+cdCheckSuccess:
+	call cmd_cd
+cdCheckFail:
 
 
 ; fork
@@ -84,3 +101,16 @@ notForked:
 	syscall
 	
 	jmp shellLoop
+
+
+
+cmd_cd:
+	push rax
+	push rdi
+	mov rax, 0x50 ; chdir
+	mov rdi, [argv + 8]
+	syscall
+	pop rdi
+	pop rax
+	ret
+
