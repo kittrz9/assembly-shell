@@ -8,6 +8,7 @@ section .bss
 inputBuf: resb 256
 argv: resq 64
 cwd: resb 256
+file: resb 64
 
 section .data
 prompt: db ">"
@@ -15,6 +16,9 @@ nullStr: db 0x0
 ;argv: dq inputBuf,0x0
 env: dq nullStr, 0x0
 cmd_cd_str: db "cd",0x0
+path: db "/bin/", 0x0
+execveFailStr: db "execve has failed for some reason",0xa
+execveFailStrLen: equ $-execveFailStr
 
 section .text
 _start:
@@ -53,13 +57,13 @@ spaceCheck:
 	inc rdi
 	cmp byte [rdi], 0x0
 	je endOfArgs
-	cmp byte [rdi], 0xa
+	cmp byte [rdi], 0xa ; \n
 	jne notNewline
 	mov byte [rdi], 0x0
 	jmp endOfArgs
 notNewline:
 
-	cmp byte [rdi], 0x20
+	cmp byte [rdi], ' '
 	jne spaceCheck
 
 	mov byte [rdi], 0x0
@@ -91,7 +95,38 @@ commandCheckSuccess:
 	lea rax, [rbx + 16]
 	mov rbx, qword [rax]
 	call rbx
+	jmp shellLoop
 commandCheckEnd:
+
+; if starting with / or . skip path check
+	lea rdi, [file] ; loading file address since it needs to be set for both paths
+	movzx rax, byte [inputBuf]
+	cmp rax, '/'
+	je skipPath
+	cmp rax, '.'
+	je skipPath
+
+; strcat path and argv[0]
+	lea rsi, [path]
+	mov rcx, 5
+	repe movsb
+
+skipPath:
+	; get length of argv[0]
+	mov rsi, qword [argv]
+	xor rcx, rcx
+argvSizeLoop:
+	movzx rax, byte [rsi]
+	inc rsi
+	inc rcx
+	cmp rax, 0x0
+	jne argvSizeLoop
+
+
+	mov rsi, qword [argv]
+	repe movsb
+
+	mov byte [rdi], 0x0
 
 ; fork
 	mov rax, 0x39
@@ -102,11 +137,16 @@ commandCheckEnd:
 	jne notForked
 forked:
 	mov rax, 0x3b
-	mov rdi, inputBuf
+	mov rdi, file
 	mov rsi, argv
 	mov rdx, env
 	syscall
 	; exit if execve fails
+	mov rax, 0x1
+	mov rdi, 0x1
+	mov rsi, execveFailStr
+	mov rdx, execveFailStrLen
+	syscall
 	mov rax, 0x3c
 	mov rdi, 69
 	syscall
