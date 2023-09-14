@@ -3,7 +3,9 @@ just a very simple shell written in x86 assembly
   
 I made this basically just to learn how to write x86 assembly. this really should not be used in any normal way  
   
-currently this is only capable of executing programs with either their full path (i.e. `/bin/ls`) or just their name if they are in /bin/, sending different arguments to a program like `ls -alsh`, and a few built in commands like `cd` and `exit`. there is no support for environment variables or really anything else a functional shell would have.  
+currently this is only capable of executing programs with either their full path (i.e. `/bin/ls`) or just their name if they are in /bin/, sending different arguments to a program like `ls -alsh`, and a few built in commands like `cd` and `exit`.  
+
+it will also copy all of the environment variables from the previous shell, but it is incapable of actually changing any of them currently, making this functionality kinda useless at the moment lmao  
   
 ---
 
