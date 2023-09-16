@@ -1,5 +1,7 @@
 global _start
 
+bits 64
+
 extern cmdList
 
 global argv
@@ -14,7 +16,6 @@ brkLocation: resq 1
 
 section .data
 prompt: db ">"
-cmd_cd_str: db "cd",0x0
 path: db "/bin/", 0x0
 execveFailStr: db "execve has failed for some reason",0xa
 execveFailStrLen: equ $-execveFailStr
@@ -58,7 +59,6 @@ envLenLoop:
 	inc rcx ; for the last null byte
 	sub rcx, rsi
 	; allocate space for the env var
-brkDebug:
 	add rdi, rcx
 	mov rax, 0xc ; brk
 	push rcx
@@ -151,10 +151,10 @@ commandCheckEnd:
 
 ; if starting with / or . skip path check
 	lea rdi, [file] ; loading file address since it needs to be set for both paths
-	movzx rax, byte [inputBuf]
-	cmp rax, '/'
+	mov al, byte [inputBuf]
+	cmp al, '/'
 	je skipPath
-	cmp rax, '.'
+	cmp al, '.'
 	je skipPath
 
 ; strcat path and argv[0]
@@ -167,10 +167,10 @@ skipPath:
 	mov rsi, qword [argv]
 	xor rcx, rcx
 argvSizeLoop:
-	movzx rax, byte [rsi]
+	mov al, byte [rsi]
 	inc rsi
 	inc rcx
-	cmp rax, 0x0
+	cmp al, 0x0
 	jne argvSizeLoop
 
 

@@ -1,5 +1,7 @@
 global cmdList
 
+bits 64
+
 extern argv
 
 section .data
