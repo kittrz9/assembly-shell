@@ -15,4 +15,4 @@ for f in src/*.s; do
 	OBJS="$OBJS $OBJNAME"
 done
 
-$LD $OBJS -o build/test -N
+$LD $OBJS -o build/shell -N

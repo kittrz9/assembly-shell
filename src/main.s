@@ -3,8 +3,11 @@ global _start
 bits 64
 
 extern cmdList
+extern setupSignalHandler
 
 global argv
+global shellLoop
+global forkedPID
 
 section .bss
 inputBuf: resb 256
@@ -13,6 +16,7 @@ env: resq 256
 cwd: resb 256
 file: resb 64
 brkLocation: resq 1
+forkedPID: resq 1 ; idk what the size of linux process ids are lmao
 
 section .data
 prompt: db ">"
@@ -22,6 +26,7 @@ execveFailStrLen: equ $-execveFailStr
 
 section .text
 _start:
+	call setupSignalHandler
 ; get brk location
 	mov rax, 0xc ; brk
 	mov rdi, 0
@@ -43,7 +48,6 @@ argLoopEnd:
 
 ; copy envp
 	pop rsi
-	mov rcx, 0x0
 	lea rbx, [env]
 	mov rdi, qword [brkLocation]
 envLoop:
@@ -93,8 +97,8 @@ shellLoop:
 	syscall
 
 ; read from stdin
-	mov rax, 0x0 ; read
-	mov rdi, 0x0 ; stdin
+	xor rax, rax
+	xor rdi, rdi
 	mov rsi, inputBuf
 	mov rdx, 256
 	syscall
@@ -169,7 +173,7 @@ skipPath:
 argvSizeLoop:
 	mov al, byte [rsi]
 	inc rsi
-	inc rcx
+	inc cl
 	cmp al, 0x0
 	jne argvSizeLoop
 
@@ -204,11 +208,12 @@ forked:
 
 notForked:
 ; wait 
+	mov [forkedPID], rax
 	mov rdi, rax
 	mov rax, 0x3d
 	mov rsi, -1
-	mov rdx, 0x0
-	mov r10, 0x0 
+	xor rdx, rdx
+	xor r10, r10
 	syscall
 	
 	jmp shellLoop
