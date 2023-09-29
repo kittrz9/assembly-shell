@@ -8,6 +8,7 @@ extern setupSignalHandler
 global argv
 global shellLoop
 global forkedPID
+global inputBuf
 
 section .bss
 inputBuf: resb 256
@@ -103,9 +104,15 @@ shellLoop:
 	mov rdx, 256
 	syscall
 
+	mov al, byte [inputBuf]
+	cmp al, 0
+	je shellLoop
+
 ; parse for argv
 	lea rdi, [inputBuf]
 	lea rcx, [argv]
+	cmp byte [rdi], 0xa
+	je shellLoop
 nextArg:
 	mov rdx, rdi
 spaceCheck:
@@ -215,6 +222,8 @@ notForked:
 	xor rdx, rdx
 	xor r10, r10
 	syscall
+	
+	mov qword [forkedPID], 0
 	
 	jmp shellLoop
 
