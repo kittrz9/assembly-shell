@@ -27,7 +27,6 @@ forkedPID: resq 1 ; idk what the size of linux process ids are lmao
 
 section .data
 prompt: db ">"
-path: db "/bin/", 0x0
 execveFailStr: db "execve failed",0xa
 execveFailStrLen: equ $-execveFailStr
 
