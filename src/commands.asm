@@ -3,12 +3,16 @@ global cmdList
 bits 64
 
 extern argv
+extern env
+extern setPath
+extern file
 
 section .data
 cmdList: 
 	dq cmdCdStr, cmdCdLen, cmdCdFunc
 	dq cmdAsdfStr, cmdAsdfLen, cmdAsdfFunc
 	dq cmdExitStr, cmdExitLen, cmdExitFunc
+	dq cmdExecStr, cmdExecLen, cmdExecFunc
 	dq 0x0
 
 section .text
@@ -47,3 +51,28 @@ section .data
 cmdExitStr:
 	db "exit",0x0
 cmdExitLen: equ $-cmdExitStr
+
+section .data
+cmdExecStr:
+	db "exec",0x0
+cmdExecLen: equ $-cmdExecStr
+execFailStr:
+	db "exec failed",0xa
+execFailLen: equ $-execFailStr
+
+section .text
+cmdExecFunc:
+	mov rax, argv+8
+	call setPath
+	mov rax, 0x3b ; execve
+	mov rdi, file
+	mov rsi, argv+8
+	mov rdx, env
+	syscall
+	; should only get past the syscall if execve failed
+	mov rax, 0x1
+	mov rdi, 0x1
+	mov rsi, execFailStr
+	mov rdx, execFailLen
+	syscall
+	ret

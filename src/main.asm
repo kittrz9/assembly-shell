@@ -4,11 +4,14 @@ bits 64
 
 extern cmdList
 extern setupSignalHandler
+extern setPath
 
 global argv
 global shellLoop
 global forkedPID
 global inputBuf
+global env
+global file
 
 section .bss
 inputBuf: resb 256
@@ -160,35 +163,8 @@ commandCheckSuccess:
 	jmp shellLoop
 commandCheckEnd:
 
-; if starting with / or . skip path check
-	lea rdi, [file] ; loading file address since it needs to be set for both paths
-	mov al, byte [inputBuf]
-	cmp al, '/'
-	je skipPath
-	cmp al, '.'
-	je skipPath
-
-; strcat path and argv[0]
-	lea rsi, [path]
-	mov rcx, 5
-	repe movsb
-
-skipPath:
-	; get length of argv[0]
-	mov rsi, qword [argv]
-	xor rcx, rcx
-argvSizeLoop:
-	mov al, byte [rsi]
-	inc rsi
-	inc cl
-	cmp al, 0x0
-	jne argvSizeLoop
-
-
-	mov rsi, qword [argv]
-	repe movsb
-
-	mov byte [rdi], 0x0
+	mov rax, argv
+	call setPath
 
 ; fork
 	mov rax, 0x39
