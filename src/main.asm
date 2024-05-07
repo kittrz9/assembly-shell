@@ -30,6 +30,7 @@ prompt: db ">"
 execveFailStr: db "execve failed",0xa
 execveFailStrLen: equ $-execveFailStr
 
+section .text
 ; shift all the chars in a string one place to the left
 ; will be used for characters like \ and "
 shiftStr:
@@ -49,7 +50,6 @@ shiftEnd:
 	pop rbx
 	ret
 
-section .text
 _start:
 	call setupSignalHandler
 ; get brk location
