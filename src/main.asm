@@ -30,6 +30,25 @@ prompt: db ">"
 execveFailStr: db "execve failed",0xa
 execveFailStrLen: equ $-execveFailStr
 
+; shift all the chars in a string one place to the left
+; will be used for characters like \ and "
+shiftStr:
+	push rbx
+	push rcx
+	mov rbx, rax
+shiftLoop:
+	inc rbx
+	mov cl, byte [rbx]
+	mov byte [rax], cl
+	cmp cl, 0
+	je shiftEnd
+	inc rax
+	jmp shiftLoop
+shiftEnd:
+	pop rcx
+	pop rbx
+	ret
+
 section .text
 _start:
 	call setupSignalHandler
@@ -130,6 +149,13 @@ spaceCheck:
 	jmp endOfArgs
 notNewline:
 
+	cmp byte [rdi], '\'
+	jne noBackslash
+	mov rax, rdi
+	call shiftStr
+	inc rdi
+	jmp spaceCheck
+noBackslash:
 	cmp byte [rdi], ' '
 	jne spaceCheck
 

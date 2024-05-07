@@ -10,7 +10,8 @@ newAction:
 sa_handler: dq intHandler
 sa_flags: dq 0x04000000
 sa_restorer: dq restore
-sa_mask: db 128 dup (0) ; 128 zero bytes
+; it still seems to work fine if I just don't include this, and saves quite a bit on file size
+;sa_mask: db 128 dup (0) ; 128 zero bytes
 
 
 section .text
