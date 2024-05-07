@@ -7,6 +7,9 @@ extern env
 extern setPath
 extern file
 
+extern execveFailStr
+extern execveFailStrLen
+
 section .data
 cmdList: 
 	dq cmdCdStr, cmdCdLen, cmdCdFunc
@@ -56,9 +59,6 @@ section .data
 cmdExecStr:
 	db "exec",0x0
 cmdExecLen: equ $-cmdExecStr
-execFailStr:
-	db "exec failed",0xa
-execFailLen: equ $-execFailStr
 
 section .text
 cmdExecFunc:
@@ -72,7 +72,7 @@ cmdExecFunc:
 	; should only get past the syscall if execve failed
 	mov rax, 0x1
 	mov rdi, 0x1
-	mov rsi, execFailStr
-	mov rdx, execFailLen
+	mov rsi, execveFailStr
+	mov rdx, execveFailStrLen
 	syscall
 	ret

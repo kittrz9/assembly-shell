@@ -13,6 +13,9 @@ global inputBuf
 global env
 global file
 
+global execveFailStr
+global execveFailStrLen
+
 section .bss
 inputBuf: resb 256
 argv: resq 64
@@ -25,7 +28,7 @@ forkedPID: resq 1 ; idk what the size of linux process ids are lmao
 section .data
 prompt: db ">"
 path: db "/bin/", 0x0
-execveFailStr: db "execve has failed for some reason",0xa
+execveFailStr: db "execve failed",0xa
 execveFailStrLen: equ $-execveFailStr
 
 section .text
