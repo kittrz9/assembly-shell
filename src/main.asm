@@ -198,7 +198,7 @@ argvSizeLoop:
 	cmp rax, 0x0
 	jne notForked
 forked:
-	mov rax, 0x3b
+	mov rax, 0x3b ; execve
 	mov rdi, file
 	mov rsi, argv
 	mov rdx, env
@@ -216,11 +216,11 @@ forked:
 notForked:
 ; wait 
 	mov [forkedPID], rax
-	mov rdi, rax
-	mov rax, 0x3d
-	mov rsi, -1
-	xor rdx, rdx
-	xor r10, r10
+	mov rax, 0x3d ; wait4
+	xor rdi, rdi ; pid
+	xor rsi, rsi ; stat_addr
+	xor rdx, rdx; options
+	xor r10, r10 ; rusage
 	syscall
 	
 	mov qword [forkedPID], 0

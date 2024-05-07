@@ -42,15 +42,24 @@ intHandler:
 	cmp qword [forkedPID], 0
 	je leaveInterrupt
 
-	; TODO: fix processes not actually stopping until the entire shell is exited
 	mov rax, 0x3e ; sys_kill
 	mov rdi, qword [forkedPID]
-	mov rsi, 15 ; SIG_TERM
+	mov rsi, 2 ; SIG_INT
 	syscall
 
-	cmp rax, 0
-	je leaveInterrupt
-	int3 ; just to be able to debug stuff in the coredump
+	; waiting here fixes interrupted processes not actually stopping
+	mov rax, 0x3d ; wait4
+	xor rdi, rdi  ; pid
+	xor rsi, rsi ; stat_addr
+	xor rdx, rdx; options
+	xor r10, r10 ; rusage
+	syscall
+
+	mov qword [forkedPID], 0
+
+	;cmp rax, 0
+	;je leaveInterrupt
+	;int3 ; just to be able to debug stuff in the coredump
 leaveInterrupt:
 	ret
 
