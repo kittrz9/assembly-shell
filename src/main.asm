@@ -59,9 +59,6 @@ _start:
 	mov qword [brkLocation], rax
 
 ; skip args
-	mov rax, 0x1
-	mov rdi, 0x1
-	mov rdx, 0x1
 	pop rcx ; argc
 argLoop:
 	cmp rcx, 0x0

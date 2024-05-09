@@ -32,5 +32,5 @@ for f in $CFILES; do
 	OBJS="$OBJS $OBJNAME"
 done
 
-$LD $OBJS -o build/shell -N
+$LD $OBJS -o build/shell -s
 
